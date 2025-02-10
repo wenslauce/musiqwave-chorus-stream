@@ -5,14 +5,23 @@ import { Search as SearchIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { searchDeezer, type DeezerSearchResult } from "@/lib/api";
 import { Link } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
 
 const Search = () => {
   const [query, setQuery] = useState("");
+  const { toast } = useToast();
 
-  const { data: searchResults, isLoading } = useQuery({
+  const { data: searchResults, isLoading, error } = useQuery({
     queryKey: ["search", query],
     queryFn: () => searchDeezer(query),
     enabled: Boolean(query),
+    onError: (error: Error) => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
+    },
   });
 
   const renderResultItem = (result: DeezerSearchResult) => {
@@ -43,7 +52,7 @@ const Search = () => {
       <Link
         key={result.id}
         to={linkPath}
-        className="flex items-center gap-4 p-4 music-card"
+        className="flex items-center gap-4 p-4 music-card hover:bg-music-light transition-colors rounded-lg"
       >
         <img
           src={imageUrl}
@@ -77,6 +86,11 @@ const Search = () => {
           {[...Array(5)].map((_, i) => (
             <div key={i} className="h-16 bg-music-light rounded-lg" />
           ))}
+        </div>
+      ) : error ? (
+        <div className="text-center text-music-subtext">
+          <p>Failed to load search results</p>
+          <p className="mt-2">Please try again later</p>
         </div>
       ) : searchResults?.length ? (
         <div className="space-y-4">

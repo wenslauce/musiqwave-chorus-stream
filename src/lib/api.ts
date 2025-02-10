@@ -1,4 +1,5 @@
-const DEEZER_API = "https://cors-anywhere.herokuapp.com/https://api.deezer.com";
+
+const DEEZER_API = "https://api.allorigins.win/raw?url=" + encodeURIComponent("https://api.deezer.com");
 const JIOSAAVN_API = "https://jiosaavn-sand.vercel.app/api";
 
 export interface DeezerSearchResult {
@@ -58,53 +59,96 @@ export interface JioSaavnSongResult {
 }
 
 export const searchDeezer = async (query: string): Promise<DeezerSearchResult[]> => {
+  if (!query) return [];
+  
   try {
-    const res = await fetch(`${DEEZER_API}/search?q=${encodeURIComponent(query)}`);
+    const res = await fetch(`${DEEZER_API}/search?q=${encodeURIComponent(query)}`, {
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+
+    if (!res.ok) {
+      throw new Error(`Deezer API error: ${res.status} ${res.statusText}`);
+    }
+
     const data = await res.json();
     return data.data || [];
   } catch (error) {
     console.error("Error searching Deezer:", error);
-    return [];
+    throw new Error("Failed to search music. Please try again later.");
   }
 };
 
 export const getArtist = async (id: string): Promise<DeezerArtist | null> => {
   try {
-    const res = await fetch(`${DEEZER_API}/artist/${id}`);
+    const res = await fetch(`${DEEZER_API}/artist/${id}`, {
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to fetch artist: ${res.status}`);
+    }
+
     return await res.json();
   } catch (error) {
     console.error("Error fetching artist:", error);
-    return null;
+    throw new Error("Failed to load artist information. Please try again later.");
   }
 };
 
 export const getAlbum = async (id: string): Promise<DeezerAlbum | null> => {
   try {
-    const res = await fetch(`${DEEZER_API}/album/${id}`);
+    const res = await fetch(`${DEEZER_API}/album/${id}`, {
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to fetch album: ${res.status}`);
+    }
+
     return await res.json();
   } catch (error) {
     console.error("Error fetching album:", error);
-    return null;
+    throw new Error("Failed to load album information. Please try again later.");
   }
 };
 
 export const getPlaylist = async (id: string): Promise<DeezerPlaylist | null> => {
   try {
-    const res = await fetch(`${DEEZER_API}/playlist/${id}`);
+    const res = await fetch(`${DEEZER_API}/playlist/${id}`, {
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to fetch playlist: ${res.status}`);
+    }
+
     return await res.json();
   } catch (error) {
     console.error("Error fetching playlist:", error);
-    return null;
+    throw new Error("Failed to load playlist information. Please try again later.");
   }
 };
 
 export const getJioSaavnSong = async (query: string): Promise<string | null> => {
   try {
     const res = await fetch(`${JIOSAAVN_API}/search?query=${encodeURIComponent(query)}`);
+    
+    if (!res.ok) {
+      throw new Error(`JioSaavn API error: ${res.status}`);
+    }
+
     const data = await res.json();
     return data.data.songs.results[0]?.url || null;
   } catch (error) {
     console.error("Error fetching JioSaavn song:", error);
-    return null;
+    throw new Error("Failed to load song. Please try again later.");
   }
 };
