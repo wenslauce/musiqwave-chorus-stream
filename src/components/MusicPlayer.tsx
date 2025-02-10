@@ -1,15 +1,31 @@
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Play, Pause, SkipBack, SkipForward, Volume2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DeezerSearchResult, getJioSaavnSong } from "@/lib/api";
 
 interface MusicPlayerProps {
   className?: string;
+  currentTrack?: DeezerSearchResult;
 }
 
-const MusicPlayer = ({ className }: MusicPlayerProps) => {
+const MusicPlayer = ({ className, currentTrack }: MusicPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    if (currentTrack) {
+      setIsLoading(true);
+      getJioSaavnSong(currentTrack.title).then((url) => {
+        if (audioRef.current && url) {
+          audioRef.current.src = url;
+          audioRef.current.load();
+          setIsLoading(false);
+        }
+      });
+    }
+  }, [currentTrack]);
 
   const togglePlay = () => {
     if (audioRef.current) {
@@ -22,18 +38,20 @@ const MusicPlayer = ({ className }: MusicPlayerProps) => {
     }
   };
 
+  if (!currentTrack) return null;
+
   return (
     <div className={cn("glass-effect fixed bottom-0 left-0 right-0 p-4 animate-slide-up", className)}>
       <div className="container mx-auto flex items-center justify-between">
         <div className="flex items-center gap-4">
           <img
-            src="/placeholder.svg"
-            alt="Album cover"
+            src={currentTrack.album?.cover_medium || "/placeholder.svg"}
+            alt={currentTrack.title}
             className="w-12 h-12 rounded-md"
           />
           <div>
-            <h4 className="font-medium">Song Title</h4>
-            <p className="text-sm text-music-subtext">Artist Name</p>
+            <h4 className="font-medium">{currentTrack.title}</h4>
+            <p className="text-sm text-music-subtext">{currentTrack.artist?.name}</p>
           </div>
         </div>
 
@@ -44,7 +62,8 @@ const MusicPlayer = ({ className }: MusicPlayerProps) => {
             </button>
             <button
               onClick={togglePlay}
-              className="w-8 h-8 bg-music-primary rounded-full flex items-center justify-center hover:bg-music-secondary transition-colors"
+              disabled={isLoading}
+              className="w-8 h-8 bg-music-primary rounded-full flex items-center justify-center hover:bg-music-secondary transition-colors disabled:opacity-50"
             >
               {isPlaying ? <Pause size={18} /> : <Play size={18} />}
             </button>

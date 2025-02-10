@@ -11,31 +11,36 @@ import Search from "./pages/Search";
 import Library from "./pages/Library";
 import Playlists from "./pages/Playlists";
 import NotFound from "./pages/NotFound";
+import { useMusicStore } from "./lib/store";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <div className="flex min-h-screen">
-          <Sidebar />
-          <main className="ml-64 flex-1 p-8">
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/search" element={<Search />} />
-              <Route path="/library" element={<Library />} />
-              <Route path="/playlists" element={<Playlists />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </main>
-          <MusicPlayer className="ml-64" />
-        </div>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  const currentTrack = useMusicStore((state) => state.currentTrack);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <div className="flex min-h-screen">
+            <Sidebar />
+            <main className="ml-64 flex-1 p-8">
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/search" element={<Search />} />
+                <Route path="/library" element={<Library />} />
+                <Route path="/playlists" element={<Playlists />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </main>
+            <MusicPlayer className="ml-64" currentTrack={currentTrack} />
+          </div>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
