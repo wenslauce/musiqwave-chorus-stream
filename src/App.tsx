@@ -10,6 +10,8 @@ import Index from "./pages/Index";
 import Search from "./pages/Search";
 import Library from "./pages/Library";
 import Playlists from "./pages/Playlists";
+import Artist from "./pages/Artist";
+import Album from "./pages/Album";
 import NotFound from "./pages/NotFound";
 import { useMusicStore } from "./lib/store";
 
@@ -32,6 +34,9 @@ const App = () => {
                 <Route path="/search" element={<Search />} />
                 <Route path="/library" element={<Library />} />
                 <Route path="/playlists" element={<Playlists />} />
+                <Route path="/playlists/:id" element={<Playlists />} />
+                <Route path="/artists/:id" element={<Artist />} />
+                <Route path="/albums/:id" element={<Album />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>

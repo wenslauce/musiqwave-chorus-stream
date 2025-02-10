@@ -1,31 +1,19 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
-import { getPlaylist, type DeezerPlaylist } from "@/lib/api";
-import { ListMusic } from "lucide-react";
+import { getAlbum, type DeezerAlbum } from "@/lib/api";
+import { Calendar } from "lucide-react";
 import { useMusicStore } from "@/lib/store";
 
-const Playlists = () => {
+const Album = () => {
   const { id } = useParams<{ id: string }>();
   const setCurrentTrack = useMusicStore((state) => state.setCurrentTrack);
 
-  const { data: playlist, isLoading } = useQuery({
-    queryKey: ["playlist", id],
-    queryFn: () => getPlaylist(id!),
+  const { data: album, isLoading } = useQuery({
+    queryKey: ["album", id],
+    queryFn: () => getAlbum(id!),
     enabled: !!id,
   });
-
-  if (!id) {
-    return (
-      <div className="animate-fade-in">
-        <h1 className="text-3xl font-bold mb-8">Your Playlists</h1>
-        <div className="text-center text-music-subtext">
-          <p>No playlists yet</p>
-          <p className="mt-2">Create your first playlist to get started</p>
-        </div>
-      </div>
-    );
-  }
 
   if (isLoading) {
     return (
@@ -36,8 +24,8 @@ const Playlists = () => {
     );
   }
 
-  if (!playlist) {
-    return <div>Playlist not found</div>;
+  if (!album) {
+    return <div>Album not found</div>;
   }
 
   const handlePlay = (track: any) => {
@@ -48,24 +36,21 @@ const Playlists = () => {
     <div className="animate-fade-in space-y-8">
       <div className="flex items-center gap-8">
         <img
-          src={playlist.picture_medium}
-          alt={playlist.title}
+          src={album.cover_medium}
+          alt={album.title}
           className="w-64 h-64 rounded-lg object-cover"
         />
         <div>
-          <h1 className="text-4xl font-bold mb-4">{playlist.title}</h1>
+          <h1 className="text-4xl font-bold mb-4">{album.title}</h1>
           <div className="flex items-center gap-2 text-music-subtext">
-            <ListMusic className="w-5 h-5" />
-            <span>{playlist.nb_tracks} tracks</span>
+            <Calendar className="w-5 h-5" />
+            <span>{new Date(album.release_date).getFullYear()}</span>
           </div>
-          {playlist.description && (
-            <p className="mt-4 text-music-subtext">{playlist.description}</p>
-          )}
         </div>
       </div>
 
       <div className="space-y-2">
-        {playlist.tracks.data.map((track) => (
+        {album.tracks.data.map((track) => (
           <button
             key={track.id}
             onClick={() => handlePlay(track)}
@@ -82,4 +67,4 @@ const Playlists = () => {
   );
 };
 
-export default Playlists;
+export default Album;

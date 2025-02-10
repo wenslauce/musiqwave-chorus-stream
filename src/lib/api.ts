@@ -1,5 +1,4 @@
-
-const DEEZER_API = "https://api.deezer.com";
+const DEEZER_API = "https://cors-anywhere.herokuapp.com/https://api.deezer.com";
 const JIOSAAVN_API = "https://jiosaavn-sand.vercel.app/api";
 
 export interface DeezerSearchResult {
@@ -18,6 +17,8 @@ export interface DeezerSearchResult {
   };
   duration?: number;
   preview?: string;
+  nb_fan?: number;
+  nb_tracks?: number;
 }
 
 export interface DeezerArtist {
@@ -34,6 +35,17 @@ export interface DeezerAlbum {
   title: string;
   cover_medium: string;
   release_date: string;
+  tracks: {
+    data: DeezerSearchResult[];
+  };
+}
+
+export interface DeezerPlaylist {
+  id: string;
+  title: string;
+  description: string;
+  picture_medium: string;
+  nb_tracks: number;
   tracks: {
     data: DeezerSearchResult[];
   };
@@ -72,6 +84,16 @@ export const getAlbum = async (id: string): Promise<DeezerAlbum | null> => {
     return await res.json();
   } catch (error) {
     console.error("Error fetching album:", error);
+    return null;
+  }
+};
+
+export const getPlaylist = async (id: string): Promise<DeezerPlaylist | null> => {
+  try {
+    const res = await fetch(`${DEEZER_API}/playlist/${id}`);
+    return await res.json();
+  } catch (error) {
+    console.error("Error fetching playlist:", error);
     return null;
   }
 };
